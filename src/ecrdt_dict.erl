@@ -10,7 +10,7 @@
 
 %% API
 -export([new/0, store/3, find/2, erase/2, to_list/1, from_list/1,
-         merge/1, merge/2, is_dict/1, update_counter/3]).
+         merge/1, merge/2, is_dict/1, update_counter/3, size/1]).
 
 -include("ecrdt.hrl").
 
@@ -22,6 +22,9 @@ new() ->
 
 is_dict(#ecrdt_d{}) -> true;
 is_dict(_) -> false.
+
+size(#ecrdt_d{add = A}) ->
+    dict:size(A).
 
 store(K, V, #ecrdt_d{add = A, rm = R}) ->
     #ecrdt_d{add = dict:store(K, {V, erlang:monotonic_time()}, A), rm = R}.
