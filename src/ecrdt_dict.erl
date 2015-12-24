@@ -10,7 +10,8 @@
 
 %% API
 -export([new/0, store/3, find/2, erase/2, to_list/1, from_list/1,
-         merge/1, merge/2, is_dict/1, update_counter/3, size/1]).
+         merge/1, merge/2, is_dict/1, update_counter/3, size/1,
+	 filter/2]).
 
 -include("ecrdt.hrl").
 
@@ -56,6 +57,18 @@ from_list(KVs) ->
       fun({K, V}, S) ->
               store(K, V, S)
       end, new(), KVs).
+
+filter(Pred, Dict) ->
+    R = dict:fold(
+	  fun(Key, Val, Acc) ->
+		  case Pred(Key, Val) of
+		      true ->
+			  Acc;
+		      false ->
+			  dict:store(Key, erlang:monotonic_time(), Acc)
+		  end
+	  end, Dict#ecrdt_d.rm, Dict#ecrdt_d.add),
+    Dict#ecrdt_d{rm = R}.
 
 update_counter(_, 0, D) ->
     D;
