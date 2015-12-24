@@ -14,14 +14,10 @@
 
 -include("ecrdt.hrl").
 
--opaque counter() :: #ecrdt_c{}.
-
--export_type([counter/0]).
-
 %%%===================================================================
 %%% API
 %%%===================================================================
--spec new() -> counter().
+-spec new() -> ecrdt:counter().
 new() ->
     #ecrdt_c{}.
 
@@ -29,33 +25,33 @@ new() ->
 is_counter(#ecrdt_c{}) -> true;
 is_counter(_) -> false.
 
--spec incr(counter()) -> counter().
+-spec incr(ecrdt:counter()) -> ecrdt:counter().
 incr(Counter) ->
     update(node(), Counter, 1).
 
--spec decr(counter()) -> counter().
+-spec decr(ecrdt:counter()) -> ecrdt:counter().
 decr(Counter) ->
     update(node(), Counter, -1).
 
--spec update(counter(), integer()) -> counter().
+-spec update(ecrdt:counter(), integer()) -> ecrdt:counter().
 update(Counter, Incr) ->
     update(node(), Counter, Incr).
 
--spec value(counter()) -> integer().
+-spec value(ecrdt:counter()) -> integer().
 value(#ecrdt_c{pos = Pos, neg = Neg}) ->
     lists:sum([N || {_, N} <- Pos]) - lists:sum([N || {_, N} <- Neg]).
 
--spec merge([counter()]) -> counter().
+-spec merge([ecrdt:counter()]) -> ecrdt:counter().
 merge([]) ->
     erlang:error(badarg);
 merge(Cs) ->
     hd(do_merge(Cs)).
 
--spec merge(counter(), counter()) -> counter().
+-spec merge(ecrdt:counter(), ecrdt:counter()) -> ecrdt:counter().
 merge(#ecrdt_c{pos = P1, neg = N1}, #ecrdt_c{pos = P2, neg = N2}) ->
     #ecrdt_c{pos = merge2(P1, P2), neg = merge2(N1, N2)}.
 
--spec update(node(), counter(), integer()) -> counter().
+-spec update(node(), ecrdt:counter(), integer()) -> ecrdt:counter().
 update(Node, #ecrdt_c{pos = Pos, neg = Neg}, Incr) ->
     if Incr > 0 ->
             #ecrdt_c{pos = do_update(Node, Pos, Incr), neg = Neg};

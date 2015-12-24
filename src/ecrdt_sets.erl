@@ -15,13 +15,10 @@
 
 -include("ecrdt.hrl").
 
--opaque ecrdt_set() :: #ecrdt_s{}.
--export_type([ecrdt_set/0]).
-
 %%%===================================================================
 %%% API
 %%%===================================================================
--spec new() -> ecrdt_set().
+-spec new() -> ecrdt:set().
 new() ->
     #ecrdt_s{}.
 
@@ -29,7 +26,7 @@ new() ->
 is_set(#ecrdt_s{}) -> true;
 is_set(_) -> false.
 
--spec size(ecrdt_set()) -> non_neg_integer().
+-spec size(ecrdt:set()) -> non_neg_integer().
 size(#ecrdt_s{add = A, rm = R}) ->
     dict:fold(
       fun(E, TA, Size) ->
@@ -41,15 +38,15 @@ size(#ecrdt_s{add = A, rm = R}) ->
               end
       end, 0, A).
 
--spec add_element(term(), ecrdt_set()) -> ecrdt_set().
+-spec add_element(term(), ecrdt:set()) -> ecrdt:set().
 add_element(E, #ecrdt_s{add = A, rm = R}) ->
     #ecrdt_s{add = dict:store(E, erlang:monotonic_time(), A), rm = R}.
 
--spec del_element(term(), ecrdt_set()) -> ecrdt_set().
+-spec del_element(term(), ecrdt:set()) -> ecrdt:set().
 del_element(E, #ecrdt_s{add = A, rm = R}) ->
     #ecrdt_s{add = A, rm = dict:store(E, erlang:monotonic_time(), R)}.
 
--spec is_element(term(), ecrdt_set()) -> boolean().
+-spec is_element(term(), ecrdt:set()) -> boolean().
 is_element(E, #ecrdt_s{add = A, rm = R}) ->
     case dict:find(E, A) of
         error ->
@@ -61,7 +58,7 @@ is_element(E, #ecrdt_s{add = A, rm = R}) ->
             end
     end.
 
--spec to_list(ecrdt_set()) -> list().
+-spec to_list(ecrdt:set()) -> list().
 to_list(#ecrdt_s{add = A, rm = R}) ->
     dict:fold(
       fun(E, TA, Es) ->
@@ -73,32 +70,32 @@ to_list(#ecrdt_s{add = A, rm = R}) ->
               end
       end, [], A).
 
--spec from_list(list()) -> ecrdt_set().
+-spec from_list(list()) -> ecrdt:set().
 from_list(Es) ->
     lists:foldl(
       fun(E, S) ->
               add_element(E, S)
       end, new(), Es).
 
--spec merge(ecrdt_set(), ecrdt_set()) -> ecrdt_set().
+-spec merge(ecrdt:set(), ecrdt:set()) -> ecrdt:set().
 merge(#ecrdt_s{add = A1, rm = R1}, #ecrdt_s{add = A2, rm = R2}) ->
     #ecrdt_s{add = dict_union(A1, A2), rm = dict_union(R1, R2)}.
 
--spec subtract(ecrdt_set(), ecrdt_set()) -> ecrdt_set().
+-spec subtract(ecrdt:set(), ecrdt:set()) -> ecrdt:set().
 subtract(#ecrdt_s{add = A1, rm = R1}, #ecrdt_s{add = A2}) ->
     #ecrdt_s{add = A1, rm = dict_union(R1, A2)}.
 
--spec merge([ecrdt_set()]) -> ecrdt_set().
+-spec merge([ecrdt:set()]) -> ecrdt:set().
 merge([]) ->
     erlang:error(badarg);
 merge(Ss) ->
     hd(do_merge(Ss)).
 
--spec union(ecrdt_set(), ecrdt_set()) -> ecrdt_set().
+-spec union(ecrdt:set(), ecrdt:set()) -> ecrdt:set().
 union(S1, S2) ->
     merge(S1, S2).
 
--spec value(ecrdt_set()) -> list().
+-spec value(ecrdt:set()) -> list().
 value(S) ->
     to_list(S).
 

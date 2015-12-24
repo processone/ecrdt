@@ -11,33 +11,30 @@
 %% API
 -export([assign/1, value/1, merge/1, merge/2, diff/2]).
 
--opaque register() :: {term(), integer()}.
--export_type([register/0]).
-
 %%%===================================================================
 %%% API
 %%%===================================================================
--spec assign(term()) -> register().
+-spec assign(T) -> ecrdt:register(T).
 assign(X) ->
     {X, erlang:monotonic_time()}.
 
--spec value(register()) -> term().
+-spec value(ecrdt:register(T)) -> T.
 value({X, _}) ->
     X.
 
--spec merge([register()]) -> register().
+-spec merge([ecrdt:register()]) -> ecrdt:register().
 merge([]) ->
     erlang:error(badarg);
 merge(Rs) ->
     hd(do_merge(Rs)).
 
--spec merge(register(), register()) -> register().
+-spec merge(ecrdt:register(), ecrdt:register()) -> ecrdt:register().
 merge({X1, T1}, {X2, T2}) ->
     if T1 >= T2 -> {X1, T1};
        true -> {X2, T2}
     end.
 
--spec diff(register(), register()) -> {true, term()} | false.
+-spec diff(ecrdt:register(), ecrdt:register(T)) -> {true, T} | false.
 diff({_X1, T1}, {X2, T2}) ->
     if T1 >= T2 -> false;
        true -> {true, X2}

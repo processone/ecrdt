@@ -13,6 +13,14 @@
 
 -include("ecrdt.hrl").
 
+-opaque dict() :: #ecrdt_d{}.
+-opaque set() :: #ecrdt_s{}.
+-opaque counter() :: #ecrdt_c{}.
+-opaque register(T) :: {T, integer()}.
+-opaque register() :: register(_).
+
+-export_type([dict/0, set/0, counter/0, register/0, register/1]).
+
 %%%===================================================================
 %%% API
 %%%===================================================================
