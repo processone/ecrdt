@@ -11,7 +11,7 @@
 %% API
 -export([new/0, store/3, find/2, erase/2, to_list/1, from_list/1,
          merge/1, merge/2, is_dict/1, update_counter/3, size/1,
-	 filter/2, fold/3]).
+	 filter/2, fold/3, is_key/2]).
 
 -include("ecrdt.hrl").
 
@@ -23,6 +23,12 @@ new() ->
 
 is_dict(#ecrdt_d{}) -> true;
 is_dict(_) -> false.
+
+is_key(K, #ecrdt_d{add = A, rm = R}) ->
+    case dict:find(K, A) of
+	error -> false;
+	{ok, {_, T}} -> not is_removed(K, R, T)
+    end.
 
 size(#ecrdt_d{add = A}) ->
     dict:size(A).
