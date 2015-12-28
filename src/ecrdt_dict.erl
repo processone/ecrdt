@@ -11,7 +11,7 @@
 %% API
 -export([new/0, store/3, find/2, erase/2, to_list/1, from_list/1,
          merge/1, merge/2, is_dict/1, update_counter/3, size/1,
-	 filter/2, fold/3, is_key/2]).
+	 filter/2, fold/3, is_key/2, fetch/2, update/3]).
 
 -include("ecrdt.hrl").
 
@@ -36,6 +36,16 @@ size(#ecrdt_d{add = A}) ->
 store(K, V, #ecrdt_d{add = A, rm = R}) ->
     #ecrdt_d{add = dict:store(K, {V, erlang:monotonic_time()}, A), rm = R}.
 
+update(K, Fun, #ecrdt_d{add = A, rm = R}) ->
+    NewA = dict:update(
+	     K, fun({V, T}) ->
+			case is_removed(K, R, T) of
+			    true -> erlang:error(badarg);
+			    false -> {Fun(V), erlang:monotonic_time()}
+			end
+		end, A),
+    #ecrdt_d{add = NewA, rm = R}.
+
 find(K, #ecrdt_d{add = A, rm = R}) ->
     case dict:find(K, A) of
         error -> error;
@@ -44,6 +54,13 @@ find(K, #ecrdt_d{add = A, rm = R}) ->
                 true -> error;
                 false -> {ok, V}
             end
+    end.
+
+fetch(K, #ecrdt_d{add = A, rm = R}) ->
+    {V, T} = dict:fetch(K, A),
+    case is_removed(K, R, T) of
+	true -> erlang:error(badarg);
+	false -> V
     end.
 
 erase(K, #ecrdt_d{add = A, rm = R}) ->
