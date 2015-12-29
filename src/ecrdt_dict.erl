@@ -11,7 +11,8 @@
 %% API
 -export([new/0, store/3, find/2, erase/2, to_list/1, from_list/1,
          merge/1, merge/2, is_dict/1, update_counter/3, size/1,
-	 filter/2, fold/3, is_key/2, fetch/2, update/3, update/4]).
+	 filter/2, fold/3, is_key/2, fetch/2, update/3, update/4,
+	 fetch_keys/1]).
 
 -include("ecrdt.hrl").
 
@@ -72,6 +73,9 @@ fetch(K, #ecrdt_d{add = A, rm = R}) ->
 	true -> erlang:error(badarg);
 	false -> V
     end.
+
+fetch_keys(Dict) ->
+    fold(fun(K, _, Acc) -> [K|Acc] end, [], Dict).
 
 erase(K, #ecrdt_d{add = A, rm = R}) ->
     #ecrdt_d{add = A, rm = dict:store(K, erlang:monotonic_time(), R)}.

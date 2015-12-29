@@ -9,7 +9,7 @@
 -module(ecrdt_reg).
 
 %% API
--export([assign/1, value/1, merge/1, merge/2, diff/2]).
+-export([assign/1, value/1, merge/1, merge/2, merge/4]).
 
 %%%===================================================================
 %%% API
@@ -34,10 +34,12 @@ merge({X1, T1}, {X2, T2}) ->
        true -> {X2, T2}
     end.
 
--spec diff(ecrdt:register(), ecrdt:register(T)) -> {true, T} | false.
-diff({_X1, T1}, {X2, T2}) ->
-    if T1 >= T2 -> false;
-       true -> {true, X2}
+-spec merge(ecrdt:register(), ecrdt:register(), fun(), any()) -> any().
+merge({X1, T1}, {X2, T2}, Fun, Acc) ->
+    if T1 >= T2 ->
+	    {{X1, T1}, Acc};
+       true ->
+	    {{X2, T2}, Fun(X2, Acc)}
     end.
 
 %%%===================================================================
