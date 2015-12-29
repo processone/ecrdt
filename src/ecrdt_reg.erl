@@ -34,7 +34,8 @@ merge({X1, T1}, {X2, T2}) ->
        true -> {X2, T2}
     end.
 
--spec merge(ecrdt:register(), ecrdt:register(T), fun((_ :: T) -> term()), term()) -> any().
+-spec merge(ecrdt:register(), ecrdt:register(T),
+	    fun((_ :: T) -> term()), term()) -> {ecrdt:register(), term()}.
 merge({X1, T1}, {X2, T2}, Fun, Default) ->
     if T1 >= T2 ->
 	    {{X1, T1}, Default};
