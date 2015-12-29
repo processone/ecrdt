@@ -11,7 +11,7 @@
 %% API
 -export([new/0, is_set/1, size/1, add_element/2, del_element/2,
          is_element/2, to_list/1, from_list/1, merge/1, merge/2,
-         subtract/2, union/2, value/1]).
+         subtract/2, union/2, value/1, empty/0]).
 
 -include("ecrdt.hrl").
 
@@ -20,6 +20,10 @@
 %%%===================================================================
 -spec new() -> ecrdt:set().
 new() ->
+    #ecrdt_s{}.
+
+-spec empty() -> ecrdt:set().
+empty() ->
     #ecrdt_s{}.
 
 -spec is_set(term()) -> boolean().
